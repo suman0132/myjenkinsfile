@@ -1,11 +1,7 @@
 pipeline {
   agent any
   environment {
-        AWS_ACCOUNT_ID="896867441108"
-        AWS_DEFAULT_REGION="ap-south-1" 
-        IMAGE_REPO_NAME="aws-course-ecr"
-        IMAGE_TAG=""$BUILD_ID""
-        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+         registry = "896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr"
     }
   stages{
     stage('Cloning Git') {
@@ -39,20 +35,15 @@ pipeline {
         sh 'mvn verify -DskipUnitTests'
       }
     }
-    stage('Docker Build') {
+    stage('Docker Build & pushing to ECR') {
       steps {
         script {
-          dockerimage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+          sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 896867441108.dkr.ecr.ap-south-1.amazonaws.com'
+          dockerimage = docker.build "aws-course-ecr:""$BUILD_ID"""
+          sh 'docker tag aws-course-ecr:""$BUILD_ID"" registry:""$BUILD_ID""'
+         sh 'docker push 896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr:""$BUILD_ID""'
         }
       }
-    }
-    stage('pushing to ECR') {
-      steps{  
-       script {
-                sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
-                sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
-       }
-      }
-    }
+    } 
   }
 }
