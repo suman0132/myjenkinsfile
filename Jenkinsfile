@@ -1,16 +1,12 @@
 pipeline {
   agent any
   environment {
-        AWS_ACCOUNT_ID="YOUR_ACCOUNT_ID_HERE"
-        AWS_DEFAULT_REGION="CREATED_AWS_ECR_CONTAINER_REPO_REGION" 
-        IMAGE_REPO_NAME="ECR_REPO_NAME"
-        IMAGE_TAG=env.BUILD_NUMBER
-        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+         registry = "896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr"
     }
   stages{
     stage('Cloning Git') {
       steps {
-        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/akannan1087/springboot-app']]])     
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/lerndevops/samplejavaapp.git']]])     
       }
     }
     stage('clean & compile') {
@@ -48,24 +44,15 @@ pipeline {
     stage('Docker Build') {
       steps {
         script {
-          dockerimage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+          dockerimage = docker.build registry 
         }
       }
     }
     stage('pushing to ECR') {
       steps{  
        script {
-                sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
-                sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
-      }
-    }
-    stage('K8S Deploy') {
-      steps{   
-        script {
-          withKubeConfig([credentialsId: 'K8S', serverUrl: '']) {
-          sh ('kubectl apply -f  eks-deploy-k8s.yaml')
-          }
-        }
+                sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 896867441108.dkr.ecr.ap-south-1.amazonaws.com'
+                sh 'docker push 896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr:env.BUILD_NUMBER'
       }
     }
   }
