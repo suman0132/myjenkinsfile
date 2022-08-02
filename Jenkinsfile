@@ -17,7 +17,6 @@ pipeline {
     stage('unit-test') {
       steps {
         sh 'mvn test'
-        jacoco execPattern: 'target/jacoco.exec'
       }
     }
     stage('package') {
