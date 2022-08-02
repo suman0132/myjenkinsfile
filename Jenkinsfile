@@ -17,7 +17,6 @@ pipeline {
     stage('unit-test') {
       steps {
         sh 'mvn test'
-        junit allowEmptyResults: true, testResults: '**/target/surefile-reports/*.xml'
         jacoco execPattern: 'target/jacoco.exec'
       }
     }
