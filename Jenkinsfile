@@ -35,22 +35,15 @@ pipeline {
         sh 'mvn verify -DskipUnitTests'
       }
     }
-    stage('Docker Build') {
+    stage('Docker Build & pushing to ECR') {
       steps {
         script {
-          dockerimage = docker.build registry:""$BUILD_ID"" 
+          sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 896867441108.dkr.ecr.ap-south-1.amazonaws.com'
+          sh 'docker build -t ecr-demoing .'
+          sh 'docker tag ecr-demoing:""$BUILD_ID""'
+         sh 'docker push 896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr:""$BUILD_ID""'
         }
       }
-    }
-    stage('pushing to ECR') {
-      steps{  
-       script {
-         sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 896867441108.dkr.ecr.ap-south-1.amazonaws.com'
-         sh 'docker tag aws-course-ecr:latest 896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr:""$BUILD_ID""'
-         sh 'docker push 896867441108.dkr.ecr.ap-south-1.amazonaws.com/aws-course-ecr:""$BUILD_ID""'
-         
-       }
-     }
-    }  
+    } 
   }
 }
