@@ -4,6 +4,11 @@ pipeline {
     registry = "account_id.dkr.ecr.us-east-2.amazonaws.com/my-docker-repo"
   }
   stages{
+    stage('Cloning Git') {
+      steps {
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/akannan1087/springboot-app']]])     
+      }
+    }
     stage('clean & compile') {
       steps{
         sh 'mvn clean compile'
