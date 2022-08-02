@@ -4,7 +4,7 @@ pipeline {
         AWS_ACCOUNT_ID="896867441108"
         AWS_DEFAULT_REGION="ap-south-1" 
         IMAGE_REPO_NAME="aws-course-ecr"
-        IMAGE_TAG="""$BUILD_ID"
+        IMAGE_TAG=""$BUILD_ID""
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
   stages{
