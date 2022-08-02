@@ -20,7 +20,7 @@ pipeline {
       }
       post {
         success {
-          junit '**/target/surefile-reports/*.xml'
+          junit allowEmptyResults: true, testResults: '**/target/surefile-reports/*.xml'
           jacoco execPattern: 'target/jacoco.exec'
         }
       }
