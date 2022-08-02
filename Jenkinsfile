@@ -1,8 +1,12 @@
 pipeline {
   agent any
-  evironment {
-    registry = "account_id.dkr.ecr.us-east-2.amazonaws.com/my-docker-repo"
-  }
+  environment {
+        AWS_ACCOUNT_ID="YOUR_ACCOUNT_ID_HERE"
+        AWS_DEFAULT_REGION="CREATED_AWS_ECR_CONTAINER_REPO_REGION" 
+        IMAGE_REPO_NAME="ECR_REPO_NAME"
+        IMAGE_TAG=env.BUILD_NUMBER
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+    }
   stages{
     stage('Cloning Git') {
       steps {
@@ -44,16 +48,15 @@ pipeline {
     stage('Docker Build') {
       steps {
         script {
-          dockerimage = docker.build registry
+          dockerimage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
         }
       }
     }
     stage('pushing to ECR') {
       steps{  
        script {
-          sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin account_id.dkr.ecr.us-east-2.amazonaws.com'
-          sh 'docker push account_id.dkr.ecr.us-east-2.amazonaws.com/my-docker-repo:latest'
-       }
+                sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
+                sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
       }
     }
     stage('K8S Deploy') {
