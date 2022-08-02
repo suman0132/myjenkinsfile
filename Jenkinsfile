@@ -6,7 +6,7 @@ pipeline {
   stages{
     stage('Cloning Git') {
       steps {
-        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/lerndevops/samplejavaapp.git']]])     
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/suman0132/myjenkinsfile.git']]])     
       }
     }
     stage('clean & compile') {
